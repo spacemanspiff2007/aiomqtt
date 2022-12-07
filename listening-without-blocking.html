@@ -3,12 +3,13 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="TLS" href="tls.html" /><link rel="prev" title="Sharing the connection" href="sharing-the-connection.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Reconnecting" href="reconnecting.html" /><link rel="prev" title="Sharing the connection" href="sharing-the-connection.html" />
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
         <title>Listening without blocking - asyncio-mqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -149,22 +150,22 @@
   <span class="sidebar-brand-text">asyncio-mqtt</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+  <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="configuring-the-client.html">Configuring the client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reconnecting.html">Reconnecting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="topic-filters.html">Topic filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filtering-messages.html">Filtering messages</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharing-the-connection.html">Sharing the connection</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Listening without blocking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reconnecting.html">Reconnecting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tls.html">TLS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Project links:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Project links</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt">GitHub</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/issues">Issue tracker</a></li>
@@ -207,15 +208,15 @@
           <section id="listening-without-blocking">
 <h1>Listening without blocking<a class="headerlink" href="#listening-without-blocking" title="Permalink to this heading">#</a></h1>
 <p>If you run the basic example for subscribing and listening for messages, you’ll notice that the program doesn’t finish until you stop it. Waiting for messages blocks the execution of everything that comes afterward. If you want to run other code after starting your listener (e.g. handling HTTP requests in a web framework) you don’t want this.</p>
-<p>To solve this, you can use asyncio’s <code class="docutils literal notranslate"><span class="pre">create_task</span></code> without <code class="docutils literal notranslate"><span class="pre">await</span></code> ing the created task. The concept is similar to starting a new thread without <code class="docutils literal notranslate"><span class="pre">join</span></code> ing it in a multithreaded application.</p>
+<p>To solve this, you can use asyncio’s <code class="docutils literal notranslate"><span class="pre">create_task</span></code> without <code class="docutils literal notranslate"><span class="pre">await</span></code>ing the created task. The concept is similar to starting a new thread without <code class="docutils literal notranslate"><span class="pre">join</span></code>ing it in a multithreaded application.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">listen</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">unfiltered_messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;measurements/#&quot;</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 
@@ -242,12 +243,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="tls.html">
+          <a class="next-page" href="reconnecting.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">TLS</div>
+                <div class="title">Reconnecting</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -300,5 +301,7 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     </body>
 </html>

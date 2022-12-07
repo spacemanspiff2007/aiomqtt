@@ -3,12 +3,13 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Sharing the connection" href="sharing-the-connection.html" /><link rel="prev" title="Reconnecting" href="reconnecting.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Sharing the connection" href="sharing-the-connection.html" /><link rel="prev" title="Configuring the client" href="configuring-the-client.html" />
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>Topic filters - asyncio-mqtt</title>
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>Filtering messages - asyncio-mqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -149,22 +150,22 @@
   <span class="sidebar-brand-text">asyncio-mqtt</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+  <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="configuring-the-client.html">Configuring the client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reconnecting.html">Reconnecting</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Topic filters</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Filtering messages</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharing-the-connection.html">Sharing the connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="listening-without-blocking.html">Listening without blocking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reconnecting.html">Reconnecting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tls.html">TLS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Project links:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Project links</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt">GitHub</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/issues">Issue tracker</a></li>
@@ -204,74 +205,30 @@
           </label>
         </div>
         <article role="main">
-          <section id="topic-filters">
-<h1>Topic filters<a class="headerlink" href="#topic-filters" title="Permalink to this heading">#</a></h1>
-<p>Let’s take the example from the beginning again, but this time with messages in both <code class="docutils literal notranslate"><span class="pre">measurements/humidity</span></code> and <code class="docutils literal notranslate"><span class="pre">measurements/temperature</span></code>. You want to receive both types of measurements but handle them differently. <em>asyncio-mqtt</em> has topic filters to make this easy:</p>
+          <section id="filtering-messages">
+<h1>Filtering messages<a class="headerlink" href="#filtering-messages" title="Permalink to this heading">#</a></h1>
+<p>Imagine you’re measuring temperature and humidity on the outside and inside, and our topics look like this: <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code>. You want to receive all types of measurements but handle them differently. <em>asyncio-mqtt</em> provides <code class="docutils literal notranslate"><span class="pre">Topic.matches()</span></code> to make this easy:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
-<span class="kn">import</span> <span class="nn">contextlib</span>
-
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">print_messages</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
-    <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">))</span>
-
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">cancel_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">done</span><span class="p">():</span>
-            <span class="k">continue</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
-            <span class="k">await</span> <span class="n">task</span>
-        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
-            <span class="k">pass</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="c1"># We 💛 context managers. Let&#39;s create a stack to help us manage them.</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">AsyncExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
-        <span class="c1"># Keep track of the asyncio tasks that we create, so that</span>
-        <span class="c1"># we can cancel them on exit</span>
-        <span class="n">tasks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="n">stack</span><span class="o">.</span><span class="n">push_async_callback</span><span class="p">(</span><span class="n">cancel_tasks</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span>
-
-        <span class="c1"># Connect to MQTT broker</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span>
-        <span class="k">await</span> <span class="n">stack</span><span class="o">.</span><span class="n">enter_async_context</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
-
-        <span class="c1"># You can create any number of topic filters</span>
-        <span class="n">topic_filters</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;measurements/humidity&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;measurements/temperature&quot;</span>
-            <span class="c1"># 👉 Try to add more complex filters!</span>
-        <span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">topic_filter</span> <span class="ow">in</span> <span class="n">topic_filters</span><span class="p">:</span>
-            <span class="c1"># Print all messages that match the filter</span>
-            <span class="n">manager</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">filtered_messages</span><span class="p">(</span><span class="n">topic_filter</span><span class="p">)</span>
-            <span class="n">messages</span> <span class="o">=</span> <span class="k">await</span> <span class="n">stack</span><span class="o">.</span><span class="n">enter_async_context</span><span class="p">(</span><span class="n">manager</span><span class="p">)</span>
-            <span class="n">template</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;[topic_filter=&quot;</span><span class="si">{</span><span class="n">topic_filter</span><span class="si">}</span><span class="s1">&quot;] </span><span class="se">{{}}</span><span class="s1">&#39;</span>
-            <span class="n">task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">print_messages</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="n">template</span><span class="p">))</span>
-            <span class="n">tasks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-
-        <span class="c1"># Handle messages that don&#39;t match a filter</span>
-        <span class="n">messages</span> <span class="o">=</span> <span class="k">await</span> <span class="n">stack</span><span class="o">.</span><span class="n">enter_async_context</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">unfiltered_messages</span><span class="p">())</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">print_messages</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="s2">&quot;[unfiltered] </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">))</span>
-        <span class="n">tasks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-
-        <span class="c1"># Subscribe to topic(s)</span>
-        <span class="c1"># 🤔 Note that we subscribe *after* starting the message</span>
-        <span class="c1"># loggers. Otherwise, we may miss retained messages.</span>
-        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;measurements/#&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Wait for everything to complete (or fail due to, e.g., network errors)</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)</span>
+            <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[humidity/outside] </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;+/inside&quot;</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[+/inside] </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[temperature/#] </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 </div>
+<p>Note that in our example, messages to <code class="docutils literal notranslate"><span class="pre">temperature/inside</span></code> are handled twice!</p>
 </section>
 
         </article>
@@ -288,14 +245,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="reconnecting.html">
+          <a class="prev-page" href="configuring-the-client.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Reconnecting</div>
+                <div class="title">Configuring the client</div>
                 
               </div>
             </a>
@@ -337,5 +294,7 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     </body>
 </html>
