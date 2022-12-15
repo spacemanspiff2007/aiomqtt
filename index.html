@@ -158,7 +158,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="configuring-the-client.html">Configuring the client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="filtering-messages.html">Filtering messages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publishing-and-subscribing.html">Publishing and subscribing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharing-the-connection.html">Sharing the connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="listening-without-blocking.html">Listening without blocking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reconnecting.html">Reconnecting</a></li>
@@ -208,6 +208,11 @@
           <section id="the-idiomatic-asyncio-mqtt-client">
 <h1>The idiomatic asyncio MQTT Client 🙌<a class="headerlink" href="#the-idiomatic-asyncio-mqtt-client" title="Permalink to this heading">#</a></h1>
 <p>Write code like this:</p>
+<p><strong>Publisher</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="mf">0.38</span><span class="p">)</span>
+</pre></div>
+</div>
 <p><strong>Subscriber</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
@@ -216,12 +221,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Publisher</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="mf">0.38</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><em>asyncio-mqtt</em> combines the stability of the time-proven <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a> library with a modern, asyncio-based interface.</p>
+<p>asyncio-mqtt combines the stability of the time-proven <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a> library with a modern, asyncio-based interface.</p>
 <ul class="simple">
 <li><p>No more callbacks! 👍</p></li>
 <li><p>No more return codes (welcome to the <code class="docutils literal notranslate"><span class="pre">MqttError</span></code>)</p></li>
@@ -230,14 +230,15 @@
 <li><p>Fully type-hinted</p></li>
 <li><p>Did we mention no more callbacks?</p></li>
 </ul>
+<p>The whole thing is less than <a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/blob/main/asyncio_mqtt/client.py">900 lines of code</a>.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
-<p><em>asyncio-mqtt</em> can be installed via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">asyncio-mqtt</span></code>. It requires Python 3.7+ to run. The only dependency is <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a>.</p>
+<p>asyncio-mqtt can be installed via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">asyncio-mqtt</span></code>. It requires Python 3.7+ to run. The only dependency is <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a>.</p>
 <p>If you can’t wait for the latest version and want to install directly from GitHub, use:</p>
 <p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">git+https://github.com/sbtinstruments/asyncio-mqtt</span></code></p>
 <section id="note-for-windows-users">
 <h3>Note for Windows users<a class="headerlink" href="#note-for-windows-users" title="Permalink to this heading">#</a></h3>
-<p>Since Python 3.8, the default asyncio event loop is the <code class="docutils literal notranslate"><span class="pre">ProactorEventLoop</span></code>. Said loop <a class="reference external" href="https://docs.python.org/3/library/asyncio-platforms.html#windows">doesn’t support the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method</a> that is required by <em>asyncio-mqtt</em>. Please switch to an event loop that supports the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method such as the built-in <code class="docutils literal notranslate"><span class="pre">SelectorEventLoop</span></code>:</p>
+<p>Since Python 3.8, the default asyncio event loop is the <code class="docutils literal notranslate"><span class="pre">ProactorEventLoop</span></code>. Said loop <a class="reference external" href="https://docs.python.org/3/library/asyncio-platforms.html#windows">doesn’t support the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method</a> that is required by asyncio-mqtt. Please switch to an event loop that supports the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method such as the built-in <code class="docutils literal notranslate"><span class="pre">SelectorEventLoop</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change to the &quot;Selector&quot; event loop</span>
 <span class="n">asyncio</span><span class="o">.</span><span class="n">set_event_loop_policy</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">WindowsSelectorEventLoopPolicy</span><span class="p">())</span>
 <span class="c1"># Run your async application as usual</span>
@@ -271,14 +272,14 @@
 </section>
 <section id="related-projects">
 <h2>Related projects<a class="headerlink" href="#related-projects" title="Permalink to this heading">#</a></h2>
-<p>Is <em>asyncio-mqtt</em> not what you’re looking for? There are a few other clients you can try:</p>
+<p>Is asyncio-mqtt not what you’re looking for? There are a few other clients you can try:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a> — Own protocol implementation. Synchronous.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/eclipse/paho.mqtt.python" /> <img alt="license" src="https://img.shields.io/github/license/eclipse/paho.mqtt.python" /></p></li>
 <li><p><a class="reference external" href="https://github.com/wialon/gmqtt">gmqtt</a> — Own protocol implementation. Asynchronous.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/wialon/gmqtt" /> <img alt="license" src="https://img.shields.io/github/license/wialon/gmqtt" /></p></li>
 <li><p><a class="reference external" href="https://github.com/sabuhish/fastapi-mqtt">fastapi-mqtt</a> — Asynchronous wrapper around gmqtt. Simplifies integration in your FastAPI application.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/sabuhish/fastapi-mqtt" /> <img alt="license" src="https://img.shields.io/github/license/sabuhish/fastapi-mqtt" /></p></li>
 <li><p><a class="reference external" href="https://github.com/Yakifo/amqtt">amqtt</a> — Own protocol implementation. Asynchronous. Includes a broker.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/Yakifo/amqtt" /> <img alt="license" src="https://img.shields.io/github/license/Yakifo/amqtt" /></p></li>
 <li><p><a class="reference external" href="https://github.com/eerimoq/mqttools">mqttools</a> — Own protocol implementation. Asynchronous.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/eerimoq/mqttools" /> <img alt="license" src="https://img.shields.io/github/license/eerimoq/mqttools" /></p></li>
-<li><p><a class="reference external" href="https://github.com/bkanuka/trio-paho-mqtt">trio-paho-mqtt</a> — Asynchronous wrapper around paho-mqtt (similar to <em>asyncio-mqtt</em>). Based on trio instead of asyncio.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/bkanuka/trio-paho-mqtt" /> <img alt="license" src="https://img.shields.io/github/license/bkanuka/trio-paho-mqtt" /></p></li>
+<li><p><a class="reference external" href="https://github.com/bkanuka/trio-paho-mqtt">trio-paho-mqtt</a> — Asynchronous wrapper around paho-mqtt (similar to asyncio-mqtt). Based on trio instead of asyncio.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/bkanuka/trio-paho-mqtt" /> <img alt="license" src="https://img.shields.io/github/license/bkanuka/trio-paho-mqtt" /></p></li>
 </ul>
 <div class="toctree-wrapper compound">
 </div>

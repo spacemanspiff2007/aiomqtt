@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Sharing the connection" href="sharing-the-connection.html" /><link rel="prev" title="Configuring the client" href="configuring-the-client.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
-        <title>Filtering messages - asyncio-mqtt</title>
+        <title>Publishing and subscribing - asyncio-mqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -158,7 +158,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="configuring-the-client.html">Configuring the client</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Filtering messages</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Publishing and subscribing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharing-the-connection.html">Sharing the connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="listening-without-blocking.html">Listening without blocking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reconnecting.html">Reconnecting</a></li>
@@ -199,15 +199,67 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="filtering-messages">
-<h1>Filtering messages<a class="headerlink" href="#filtering-messages" title="Permalink to this heading">#</a></h1>
-<p>Imagine you’re measuring temperature and humidity on the outside and inside, and our topics look like this: <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code>. You want to receive all types of measurements but handle them differently. <em>asyncio-mqtt</em> provides <code class="docutils literal notranslate"><span class="pre">Topic.matches()</span></code> to make this easy:</p>
+          <section id="publishing-and-subscribing">
+<h1>Publishing and subscribing<a class="headerlink" href="#publishing-and-subscribing" title="Permalink to this heading">#</a></h1>
+<p>Let’s see a minimal working example of publishing a message:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="mf">0.38</span><span class="p">)</span>
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>For subscribing and listening to messages, a minimal working example looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+            <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+<section id="payload-encoding">
+<h2>Payload encoding<a class="headerlink" href="#payload-encoding" title="Permalink to this heading">#</a></h2>
+<p>Message payloads can be of types <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">bytearray</span></code>, and <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>asyncio-mqtt (or more precisely, paho-mqtt) automatically converts <code class="docutils literal notranslate"><span class="pre">int</span></code> and <code class="docutils literal notranslate"><span class="pre">float</span></code> payloads to <code class="docutils literal notranslate"><span class="pre">str</span></code>. If you want to send a true <code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">float</span></code>, you can use <a class="reference external" href="https://docs.python.org/3/library/struct.html"><code class="docutils literal notranslate"><span class="pre">struct.pack()</span></code></a> to encode it as a <code class="docutils literal notranslate"><span class="pre">bytes</span></code> object.</p>
+<p>If no payload is given or if it’s set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, a zero-length payload will be sent.</p>
+<p>All other types you’ll have to encode yourself. For example, if you want to send a <code class="docutils literal notranslate"><span class="pre">dict</span></code> as JSON, you can use <code class="docutils literal notranslate"><span class="pre">json.dumps()</span></code> (which returns a <code class="docutils literal notranslate"><span class="pre">str</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;humidity&quot;</span><span class="p">:</span> <span class="mf">0.38</span><span class="p">}))</span>
+
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>On the receiving end, you can then use <code class="docutils literal notranslate"><span class="pre">json.loads()</span></code> to decode the JSON string back into a <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+</section>
+<section id="filtering-messages">
+<h2>Filtering messages<a class="headerlink" href="#filtering-messages" title="Permalink to this heading">#</a></h2>
+<p>Imagine you’re measuring temperature and humidity on the outside and inside, and our topics look like this: <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code>. You want to receive all types of measurements but handle them differently.</p>
+<p>asyncio-mqtt provides <code class="docutils literal notranslate"><span class="pre">Topic.matches()</span></code> to make this easy:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
 
@@ -229,6 +281,7 @@
 </pre></div>
 </div>
 <p>Note that in our example, messages to <code class="docutils literal notranslate"><span class="pre">temperature/inside</span></code> are handled twice!</p>
+</section>
 </section>
 
         </article>
@@ -281,8 +334,28 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Publishing and subscribing</a><ul>
+<li><a class="reference internal" href="#payload-encoding">Payload encoding</a></li>
+<li><a class="reference internal" href="#filtering-messages">Filtering messages</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
