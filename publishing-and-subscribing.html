@@ -162,6 +162,7 @@
 <li class="toctree-l1"><a class="reference internal" href="sharing-the-connection.html">Sharing the connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="listening-without-blocking.html">Listening without blocking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reconnecting.html">Reconnecting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stop-listening.html">Stop listening</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tls.html">TLS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
 </ul>
@@ -215,6 +216,7 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="mf">0.38</span><span class="p">)</span>
+
 
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
