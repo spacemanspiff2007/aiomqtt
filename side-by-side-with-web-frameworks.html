@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Proxying" href="proxying.html" /><link rel="prev" title="Stop listening" href="stop-listening.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Reconnection" href="reconnection.html" />
 
-    <!-- Generated with Sphinx 6.1.3 and Furo 2023.03.23 -->
-        <title>TLS - asyncio-mqtt</title>
+    <!-- Generated with Sphinx 6.1.3 and Furo 2023.03.27 -->
+        <title>Side by side with web frameworks - asyncio-mqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -155,16 +155,12 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="configuring-the-client.html">Configuring the client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="publishing-and-subscribing.html">Publishing and subscribing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="listening-without-blocking.html">Listening without blocking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sharing-the-connection.html">Sharing the connection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reconnecting.html">Reconnecting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="stop-listening.html">Stop listening</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">TLS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="connecting-to-the-broker.html">Connecting to the broker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publishing-a-message.html">Publishing a message</a></li>
+<li class="toctree-l1"><a class="reference internal" href="subscribing-to-a-topic.html">Subscribing to a topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reconnection.html">Reconnection</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Side by side with web frameworks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project links</span></p>
 <ul>
@@ -206,31 +202,57 @@
           </label>
         </div>
         <article role="main">
-          <section id="tls">
-<h1>TLS<a class="headerlink" href="#tls" title="Permalink to this heading">#</a></h1>
-<p>You can configure TLS via the <code class="docutils literal notranslate"><span class="pre">TLSParameters</span></code> class. The parameters are directly passed through to paho-mqtt’s <code class="docutils literal notranslate"><span class="pre">tls_set</span></code> function. See <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt’s documentation</a> for more information about the individual parameters.</p>
+          <section id="side-by-side-with-web-frameworks">
+<h1>Side by side with web frameworks<a class="headerlink" href="#side-by-side-with-web-frameworks" title="Permalink to this heading">#</a></h1>
+<p>MQTT is often used in the context of web servers.</p>
+<p>Many web frameworks take control over the main function, which can make it tricky to figure out where to create the <code class="docutils literal notranslate"><span class="pre">Client</span></code> and how to share this connection.</p>
+<p>With <a class="reference external" href="https://github.com/tiangolo/fastapi">FastAPI</a> (<code class="docutils literal notranslate"><span class="pre">0.93+</span></code>) and <a class="reference external" href="https://github.com/encode/starlette">Starlette</a> you can use lifespan context managers to safely set up a global client instance. Here’s a minimal working example of FastAPI side by side with an asyncio-mqtt listener task and message publication on <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
-<span class="kn">import</span> <span class="nn">ssl</span>
+<span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">fastapi</span>
 
 
-<span class="n">tls_params</span> <span class="o">=</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">TLSParameters</span><span class="p">(</span>
-    <span class="n">ca_certs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">certfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">keyfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">cert_reqs</span><span class="o">=</span><span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span><span class="p">,</span>
-    <span class="n">tls_version</span><span class="o">=</span><span class="n">ssl</span><span class="o">.</span><span class="n">PROTOCOL_TLS</span><span class="p">,</span>
-    <span class="n">ciphers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">listen</span><span class="p">(</span><span class="n">client</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">,</span> <span class="n">tls_params</span><span class="o">=</span><span class="n">tls_params</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="mf">0.38</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">asynccontextmanager</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">client</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+        <span class="c1"># Make client globally available</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="c1"># Listen for MQTT messages in (unawaited) asyncio task</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">listen</span><span class="p">(</span><span class="n">client</span><span class="p">))</span>
+        <span class="k">yield</span>
+        <span class="c1"># Cancel the task</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+        <span class="c1"># Wait for the task to be cancelled</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">task</span>
+        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">fastapi</span><span class="o">.</span><span class="n">FastAPI</span><span class="p">(</span><span class="n">lifespan</span><span class="o">=</span><span class="n">lifespan</span><span class="p">)</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">():</span>
+    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="mf">0.38</span><span class="p">)</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a combination of some concepts addressed in more detail in other sections: The connection is shared between the listener task and the routes, as explained in <a class="reference internal" href="connecting-to-the-broker.html#sharing-the-connection"><span class="std std-ref">Sharing the connection</span></a>. We don’t immediately await the listener task in order to avoid blocking other code, as explained in <a class="reference internal" href="subscribing-to-a-topic.html#listening-without-blocking"><span class="std std-ref">Listening without blocking</span></a>.</p>
 </div>
 </section>
 
@@ -239,23 +261,15 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="proxying.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">Proxying</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="stop-listening.html">
+          
+          <a class="prev-page" href="reconnection.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Stop listening</div>
+                <div class="title">Reconnection</div>
                 
               </div>
             </a>

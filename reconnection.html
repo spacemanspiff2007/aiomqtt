@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="TLS" href="tls.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Side by side with web frameworks" href="side-by-side-with-web-frameworks.html" /><link rel="prev" title="Subscribing to a topic" href="subscribing-to-a-topic.html" />
 
-    <!-- Generated with Sphinx 6.1.3 and Furo 2023.03.23 -->
-        <title>Proxying - asyncio-mqtt</title>
+    <!-- Generated with Sphinx 6.1.3 and Furo 2023.03.27 -->
+        <title>Reconnection - asyncio-mqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -155,16 +155,12 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="configuring-the-client.html">Configuring the client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="publishing-and-subscribing.html">Publishing and subscribing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="listening-without-blocking.html">Listening without blocking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sharing-the-connection.html">Sharing the connection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reconnecting.html">Reconnecting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="stop-listening.html">Stop listening</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tls.html">TLS</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Proxying</a></li>
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="connecting-to-the-broker.html">Connecting to the broker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publishing-a-message.html">Publishing a message</a></li>
+<li class="toctree-l1"><a class="reference internal" href="subscribing-to-a-topic.html">Subscribing to a topic</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Reconnection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="side-by-side-with-web-frameworks.html">Side by side with web frameworks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project links</span></p>
 <ul>
@@ -206,25 +202,27 @@
           </label>
         </div>
         <article role="main">
-          <section id="proxying">
-<h1>Proxying<a class="headerlink" href="#proxying" title="Permalink to this heading">#</a></h1>
-<p>You can configure proxying via the <code class="docutils literal notranslate"><span class="pre">ProxySettings</span></code> class. The parameters are directly passed through to paho-mqtt’s <code class="docutils literal notranslate"><span class="pre">proxy_set</span></code> functionality. Both SOCKS and HTTP proxies are supported. Note that proxying is an extra feature (even in paho-mqtt) that requires the <code class="docutils literal notranslate"><span class="pre">PySocks</span></code> dependency. See <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt’s documentation</a> for more information about the individual parameters.</p>
+          <section id="reconnection">
+<h1>Reconnection<a class="headerlink" href="#reconnection" title="Permalink to this heading">#</a></h1>
+<p>Network connections are inherently unstable and can fail at any time. Especially for long-running applications, this can be a problem.</p>
+<p>The first challenge in making an application resilient to connection failures is to detect them in the first place. The second challenge is to recover from them.</p>
+<p>A simple way to detect connection failures and recover from them is to wrap your code in a <code class="docutils literal notranslate"><span class="pre">try</span></code>/<code class="docutils literal notranslate"><span class="pre">except</span></code>-block and listen for <code class="docutils literal notranslate"><span class="pre">MqttError</span></code>s:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
-<span class="kn">import</span> <span class="nn">socks</span>
 
-
-<span class="n">proxy_params</span> <span class="o">=</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">ProxySettings</span><span class="p">(</span>
-    <span class="n">proxy_type</span><span class="o">=</span><span class="n">socks</span><span class="o">.</span><span class="n">HTTP</span><span class="p">,</span>
-    <span class="n">proxy_addr</span><span class="o">=</span><span class="s2">&quot;www.example.com&quot;</span><span class="p">,</span>
-    <span class="n">proxy_rdns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">proxy_username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">proxy_password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span>
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">,</span> <span class="n">proxy</span><span class="o">=</span><span class="n">proxy_params</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="mf">0.38</span><span class="p">)</span>
+    <span class="n">interval</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Seconds</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+                <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+                    <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">MqttError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Connection lost; Reconnecting in </span><span class="si">{</span><span class="n">interval</span><span class="si">}</span><span class="s1"> seconds ...&#39;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
 
 
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
@@ -237,15 +235,23 @@
       <footer>
         
         <div class="related-pages">
-          
-          <a class="prev-page" href="tls.html">
+          <a class="next-page" href="side-by-side-with-web-frameworks.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Side by side with web frameworks</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="subscribing-to-a-topic.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">TLS</div>
+                <div class="title">Subscribing to a topic</div>
                 
               </div>
             </a>
