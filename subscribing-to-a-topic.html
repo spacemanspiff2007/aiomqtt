@@ -224,6 +224,33 @@
 <p class="admonition-title">Tip</p>
 <p>You can set the <a class="reference internal" href="publishing-a-message.html#quality-of-service-qos"><span class="std std-ref">Quality of Service</span></a> of the subscription by passing the <code class="docutils literal notranslate"><span class="pre">qos</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">subscribe()</span></code>.</p>
 </div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Messages are handled <em>one after another</em>. If a message takes a long time to handle, other messages are queued and handled only after the first one is done.</p>
+<p>You can handle messages in parallel by using an <code class="docutils literal notranslate"><span class="pre">asyncio.TaskGroup</span></code> like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># Simulate some I/O-bound work</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TaskGroup</span><span class="p">()</span> <span class="k">as</span> <span class="n">tg</span><span class="p">:</span>
+                <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+                    <span class="n">tg</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">process</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Note that this only makes sense if your message handling is I/O-bound. If it’s CPU-bound, you should spawn multiple processes instead.</p>
+</div>
 <section id="filtering-messages">
 <h2>Filtering messages<a class="headerlink" href="#filtering-messages" title="Permalink to this heading">#</a></h2>
 <p>Imagine you’re measuring temperature and humidity on the outside and inside, and our topics look like this: <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code>. You want to receive all types of measurements but handle them differently.</p>
@@ -253,9 +280,43 @@
 <p>In our example, messages to <code class="docutils literal notranslate"><span class="pre">temperature/inside</span></code> are handled twice!</p>
 </div>
 </section>
-<section id="listening-without-blocking">
-<h2>Listening without blocking<a class="headerlink" href="#listening-without-blocking" title="Permalink to this heading">#</a></h2>
-<p>When you run the minimal example for subscribing and listening for messages, you’ll notice that the program doesn’t finish until you stop it. Waiting for messages through the <code class="docutils literal notranslate"><span class="pre">messages()</span></code> generator blocks the execution of everything that comes afterward.</p>
+<section id="the-message-queue">
+<h2>The message queue<a class="headerlink" href="#the-message-queue" title="Permalink to this heading">#</a></h2>
+<p>Messages are buffered in a queue internally. The default queue is <code class="docutils literal notranslate"><span class="pre">asyncio.Queue</span></code> which returns messages on a FIFO (“first in first out”) basis. You can pass an alternative queue class to the <code class="docutils literal notranslate"><span class="pre">queue_class</span></code> parameter of <code class="docutils literal notranslate"><span class="pre">messages()</span></code>, e.g. the <code class="docutils literal notranslate"><span class="pre">asyncio.LifoQueue</span></code>.</p>
+<p>You can even queue by priority by subclassing <code class="docutils literal notranslate"><span class="pre">asyncio.PriorityQueue</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+
+<span class="k">class</span> <span class="nc">PriorityQueue</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">PriorityQueue</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">999</span><span class="p">)</span>  <span class="c1"># Random priority as example</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_put</span><span class="p">((</span><span class="n">priority</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">(</span><span class="n">queue_class</span><span class="o">=</span><span class="n">PriorityQueue</span><span class="p">)</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+            <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, the size of the queue is unlimited. You can limit it by passing the <code class="docutils literal notranslate"><span class="pre">queue_maxsize</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">messages()</span></code>.</p>
+</div>
+</section>
+<section id="unblocking-the-listener">
+<h2>Unblocking the listener<a class="headerlink" href="#unblocking-the-listener" title="Permalink to this heading">#</a></h2>
+<p>When you run the minimal example for subscribing and listening for messages, you’ll notice that the program doesn’t finish. Waiting for messages through the <code class="docutils literal notranslate"><span class="pre">messages()</span></code> generator blocks the execution of everything that comes afterward.</p>
 <p>In case you want to run other code after starting your listener, this is not practical.</p>
 <p>You can use <code class="docutils literal notranslate"><span class="pre">asyncio.TaskGroup</span></code> (or <code class="docutils literal notranslate"><span class="pre">asyncio.gather</span></code> for Python <code class="docutils literal notranslate"><span class="pre">&lt;3.11</span></code>) to safely run other tasks alongside the MQTT listener:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
@@ -276,23 +337,21 @@
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TaskGroup</span><span class="p">()</span> <span class="k">as</span> <span class="n">group</span><span class="p">:</span>
-        <span class="n">group</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-        <span class="n">group</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">listen</span><span class="p">())</span>  <span class="c1"># Start listening</span>
-        <span class="n">group</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-        <span class="n">group</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TaskGroup</span><span class="p">()</span> <span class="k">as</span> <span class="n">tg</span><span class="p">:</span>
+        <span class="n">tg</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">tg</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">listen</span><span class="p">())</span>  <span class="c1"># Start the listener task</span>
+        <span class="n">tg</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">tg</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 
 
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 </div>
-<section id="fire-and-forget">
-<h3>Fire and forget<a class="headerlink" href="#fire-and-forget" title="Permalink to this heading">#</a></h3>
-<p>Another way to avoid blocking the execution is to start the listener in a fire-and-forget way. The idea is to use asyncio’s <code class="docutils literal notranslate"><span class="pre">create_task</span></code> without <code class="docutils literal notranslate"><span class="pre">await</span></code>ing the created task:</p>
+<p>In case task groups are not an option (e.g. because you run asyncio-mqtt <a class="reference internal" href="side-by-side-with-web-frameworks.html"><span class="std std-doc">side by side with a web framework</span></a>) you can start the listener in a fire-and-forget way. The idea is to use asyncio’s <code class="docutils literal notranslate"><span class="pre">create_task</span></code> but not <code class="docutils literal notranslate"><span class="pre">await</span></code> the created task:</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
-<p>You need to be a bit careful with this approach. Exceptions raised in asyncio tasks are propagated only if we <code class="docutils literal notranslate"><span class="pre">await</span></code> the task. In this case, we explicitly don’t.</p>
-<p>This means that you need to handle all possible exceptions <em>inside</em> the fire-and-forget task. If you don’t, any exceptions will be silently ignored until the program exits.</p>
+<p>You need to be a bit careful with this approach. Exceptions raised in asyncio tasks are propagated only when we <code class="docutils literal notranslate"><span class="pre">await</span></code> the task. In this case, we explicitly don’t.</p>
+<p>This means that you need to handle all possible exceptions <em>inside</em> the fire-and-forget task. Any unhandled exceptions will be silently ignored until the program exits.</p>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
@@ -330,7 +389,6 @@
 <p>You <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#creating-tasks">need to keep a reference to the task</a> so it doesn’t get garbage collected mid-execution. That’s what we’re using the <code class="docutils literal notranslate"><span class="pre">background_tasks</span></code> set in our example for.</p>
 </div>
 </section>
-</section>
 <section id="stop-listening">
 <h2>Stop listening<a class="headerlink" href="#stop-listening" title="Permalink to this heading">#</a></h2>
 <p>You might want to have a listener task running alongside other code, and then stop it when you’re done. You can use <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.cancel"><code class="docutils literal notranslate"><span class="pre">Task.cancel()</span></code></a> for this:</p>
@@ -364,8 +422,9 @@
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 </div>
-<section id="stop-listening-after-a-certain-amount-of-time">
-<h3>Stop listening after a certain amount of time<a class="headerlink" href="#stop-listening-after-a-certain-amount-of-time" title="Permalink to this heading">#</a></h3>
+</section>
+<section id="stop-listening-after-timeout">
+<h2>Stop listening after timeout<a class="headerlink" href="#stop-listening-after-timeout" title="Permalink to this heading">#</a></h2>
 <p>For use cases where you only want to listen to messages for a certain amount of time, Python <code class="docutils literal notranslate"><span class="pre">3.11</span></code> introduced a neat feature called <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#timeouts">timeouts</a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
@@ -392,7 +451,6 @@
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 </div>
-</section>
 </section>
 </section>
 
@@ -460,14 +518,10 @@
             <ul>
 <li><a class="reference internal" href="#">Subscribing to a topic</a><ul>
 <li><a class="reference internal" href="#filtering-messages">Filtering messages</a></li>
-<li><a class="reference internal" href="#listening-without-blocking">Listening without blocking</a><ul>
-<li><a class="reference internal" href="#fire-and-forget">Fire and forget</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#stop-listening">Stop listening</a><ul>
-<li><a class="reference internal" href="#stop-listening-after-a-certain-amount-of-time">Stop listening after a certain amount of time</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#the-message-queue">The message queue</a></li>
+<li><a class="reference internal" href="#unblocking-the-listener">Unblocking the listener</a></li>
+<li><a class="reference internal" href="#stop-listening">Stop listening</a></li>
+<li><a class="reference internal" href="#stop-listening-after-timeout">Stop listening after timeout</a></li>
 </ul>
 </li>
 </ul>
