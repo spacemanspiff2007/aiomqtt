@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Reconnection" href="reconnection.html" /><link rel="prev" title="Publishing a message" href="publishing-a-message.html" />
 
-    <!-- Generated with Sphinx 6.1.3 and Furo 2023.03.27 -->
+    <!-- Generated with Sphinx 6.2.0 and Furo 2023.03.27 -->
         <title>Subscribing to a topic - asyncio-mqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
@@ -212,7 +212,7 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 
@@ -220,10 +220,7 @@
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 </div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>You can set the <a class="reference internal" href="publishing-a-message.html#quality-of-service-qos"><span class="std std-ref">Quality of Service</span></a> of the subscription by passing the <code class="docutils literal notranslate"><span class="pre">qos</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">subscribe()</span></code>.</p>
-</div>
+<p>Now you can use the <a class="reference internal" href="publishing-a-message.html"><span class="std std-doc">minimal publisher example</span></a> to publish a test message to <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code> and see it appear in the console.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Messages are handled <em>one after another</em>. If a message takes a long time to handle, other messages are queued and handled only after the first one is done.</p>
@@ -232,7 +229,7 @@
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># Simulate some I/O-bound work</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 
@@ -240,7 +237,7 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TaskGroup</span><span class="p">()</span> <span class="k">as</span> <span class="n">tg</span><span class="p">:</span>
                 <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
                     <span class="n">tg</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">process</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
@@ -251,9 +248,13 @@
 </div>
 <p>Note that this only makes sense if your message handling is I/O-bound. If it’s CPU-bound, you should spawn multiple processes instead.</p>
 </div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can set the <a class="reference internal" href="publishing-a-message.html#quality-of-service-qos"><span class="std std-ref">Quality of Service</span></a> of the subscription by passing the <code class="docutils literal notranslate"><span class="pre">qos</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">subscribe()</span></code>.</p>
+</div>
 <section id="filtering-messages">
 <h2>Filtering messages<a class="headerlink" href="#filtering-messages" title="Permalink to this heading">#</a></h2>
-<p>Imagine you’re measuring temperature and humidity on the outside and inside, and our topics look like this: <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code>. You want to receive all types of measurements but handle them differently.</p>
+<p>Imagine we measure temperature and humidity on the outside and inside, and our topics look like this: <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code>. We want to receive all types of measurements but handle them differently.</p>
 <p>asyncio-mqtt provides <code class="docutils literal notranslate"><span class="pre">Topic.matches()</span></code> to make this easy:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
@@ -262,11 +263,12 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;humidity/inside&quot;</span><span class="p">):</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[humidity/outside] </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;+/inside&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;+/outside&quot;</span><span class="p">):</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[+/inside] </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">):</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[temperature/#] </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -277,21 +279,23 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In our example, messages to <code class="docutils literal notranslate"><span class="pre">temperature/inside</span></code> are handled twice!</p>
+<p>In our example, messages to <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code> are handled twice!</p>
 </div>
 </section>
 <section id="the-message-queue">
 <h2>The message queue<a class="headerlink" href="#the-message-queue" title="Permalink to this heading">#</a></h2>
-<p>Messages are buffered in a queue internally. The default queue is <code class="docutils literal notranslate"><span class="pre">asyncio.Queue</span></code> which returns messages on a FIFO (“first in first out”) basis. You can pass an alternative queue class to the <code class="docutils literal notranslate"><span class="pre">queue_class</span></code> parameter of <code class="docutils literal notranslate"><span class="pre">messages()</span></code>, e.g. the <code class="docutils literal notranslate"><span class="pre">asyncio.LifoQueue</span></code>.</p>
-<p>You can even queue by priority by subclassing <code class="docutils literal notranslate"><span class="pre">asyncio.PriorityQueue</span></code>:</p>
+<p>Messages are buffered in a queue internally. The default queue is <code class="docutils literal notranslate"><span class="pre">asyncio.Queue</span></code> which returns messages on a FIFO (“first in first out”) basis. You can pass <a class="reference external" href="https://docs.python.org/3/library/asyncio-queue.html">other asyncio queues</a> as <code class="docutils literal notranslate"><span class="pre">queue_class</span></code> to <code class="docutils literal notranslate"><span class="pre">messages()</span></code> to modify the order in which messages are returned, e.g. <code class="docutils literal notranslate"><span class="pre">asyncio.LifoQueue</span></code>.</p>
+<p>If you want to queue based on priority, you can subclass <code class="docutils literal notranslate"><span class="pre">asyncio.PriorityQueue</span></code>. This queue returns messages in priority order (lowest priority first). In case of ties, messages with lower message identifiers are returned first.</p>
+<p>Let’s say we measure temperature and humidity again, but we want to prioritize humidity messages:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
-<span class="kn">import</span> <span class="nn">random</span>
 
 
-<span class="k">class</span> <span class="nc">PriorityQueue</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">PriorityQueue</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CustomPriorityQueue</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">PriorityQueue</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="n">priority</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">999</span><span class="p">)</span>  <span class="c1"># Random priority as example</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">):</span>  <span class="c1"># Assign priority</span>
+            <span class="n">priority</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_put</span><span class="p">((</span><span class="n">priority</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -300,7 +304,8 @@
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">(</span><span class="n">queue_class</span><span class="o">=</span><span class="n">PriorityQueue</span><span class="p">)</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">(</span><span class="n">queue_class</span><span class="o">=</span><span class="n">CustomPriorityQueue</span><span class="p">)</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">)</span>
             <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
@@ -331,7 +336,7 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">listen</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 
@@ -360,7 +365,7 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">listen</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 
@@ -378,7 +383,7 @@
 
     <span class="c1"># Infinitely do something else (e.g. handling HTTP requests)</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
@@ -399,7 +404,7 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">listen</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 
@@ -433,7 +438,7 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">listen</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;temperature/#&quot;</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 

@@ -1,6 +1,6 @@
 # Connecting to the broker
 
-To publish messages and subscribe to topics, we need to build a connection to the broker. A minimal working example that connects to the public [Mosquitto test server](https://test.mosquitto.org/) and publishes a message to the `humidity/outside` topic looks like this:
+To publish messages and subscribe to topics, we need to connect to a broker. A minimal working example that publishes a message to the `temperature/outside` topic looks like this:
 
 ```python
 import asyncio
@@ -9,14 +9,16 @@ import asyncio_mqtt as aiomqtt
 
 async def main():
     async with aiomqtt.Client("test.mosquitto.org") as client:
-        await client.publish("humidity/outside", payload=0.38)
+        await client.publish("temperature/outside", payload=28.4)
 
 
 asyncio.run(main())
 ```
 
-```{note}
-The connection to the broker is managed by the `Client` context manager. This approach is easier and less error-prone than manually managing the connection with `connect` and `disconnect` calls. Context managers handle all connection and disconnection logic for you, so that you don't have to worry about things like correctly closing the connection in spite of exceptions.
+The connection to the broker is managed by the `Client` context manager. Context managers handle all connection and disconnection logic for you. asyncio-mqtt doesn't support manual calls to `connect` and `disconnect`.
+
+```{tip}
+The above example uses the public [mosquitto test broker](https://test.mosquitto.org/). You can connect to this broker without any credentials. Please use the mosquitto test broker in issues or discussions (if possible) to make it easier for others to run your code.
 ```
 
 ## The client in detail
@@ -87,7 +89,7 @@ tls_params = aiomqtt.TLSParameters(
 
 async def main():
     async with aiomqtt.Client("test.mosquitto.org", tls_params=tls_params) as client:
-        await client.publish("humidity/outside", payload=0.38)
+        await client.publish("temperature/outside", payload=28.4)
 
 
 asyncio.run(main())
@@ -113,7 +115,7 @@ proxy_params = aiomqtt.ProxySettings(
 
 async def main():
     async with aiomqtt.Client("test.mosquitto.org", proxy=proxy_params) as client:
-        await client.publish("humidity/outside", payload=0.38)
+        await client.publish("temperature/outside", payload=28.4)
 
 
 asyncio.run(main())
@@ -124,7 +126,7 @@ asyncio.run(main())
 In many cases, you'll want to send and receive messages in different locations in your code. You could create a new client each time, but:
 
 1. this is not very performant, and
-2. you'll use a lot more network bandwidth.
+2. you'll use more network bandwidth.
 
 You can share the connection by passing the `Client` instance to all functions that need it:
 
@@ -133,18 +135,18 @@ import asyncio
 import asyncio_mqtt as aiomqtt
 
 
-async def publish_humidity(client):
-    await client.publish("humidity/outside", payload=0.38)
-
-
 async def publish_temperature(client):
-    await client.publish("temperature/outside", payload=28.3)
+    await client.publish("temperature/outside", payload=28.4)
+
+
+async def publish_humidity(client):
+    await client.publish("humidity/inside", payload=0.38)
 
 
 async def main():
     async with aiomqtt.Client("test.mosquitto.org") as client:
-        await publish_humidity(client)
         await publish_temperature(client)
+        await publish_humidity(client)
 
 
 asyncio.run(main())

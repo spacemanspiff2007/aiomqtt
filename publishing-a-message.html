@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Subscribing to a topic" href="subscribing-to-a-topic.html" /><link rel="prev" title="Connecting to the broker" href="connecting-to-the-broker.html" />
 
-    <!-- Generated with Sphinx 6.1.3 and Furo 2023.03.27 -->
+    <!-- Generated with Sphinx 6.2.0 and Furo 2023.03.27 -->
         <title>Publishing a message - asyncio-mqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
@@ -211,7 +211,7 @@
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="mf">0.38</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;temperature/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="mf">28.4</span><span class="p">)</span>
 
 
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
@@ -221,8 +221,8 @@
 <h2>Payload encoding<a class="headerlink" href="#payload-encoding" title="Permalink to this heading">#</a></h2>
 <p>MQTT message payloads are transmitted as byte streams.</p>
 <p>asyncio-mqtt accepts payloads of types <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">bytearray</span></code>, and <code class="docutils literal notranslate"><span class="pre">None</span></code>. <code class="docutils literal notranslate"><span class="pre">int</span></code> and <code class="docutils literal notranslate"><span class="pre">float</span></code> payloads are automatically converted to <code class="docutils literal notranslate"><span class="pre">str</span></code> (which is then converted to <code class="docutils literal notranslate"><span class="pre">bytes</span></code>). If you want to send a true <code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">float</span></code>, you can use <a class="reference external" href="https://docs.python.org/3/library/struct.html"><code class="docutils literal notranslate"><span class="pre">struct.pack()</span></code></a> to encode it as a <code class="docutils literal notranslate"><span class="pre">bytes</span></code> object. When no payload is specified or when it’s set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, a zero-length payload is sent.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>If you want to send non-standard types, you have to implement the encoding yourself. For example, to send a <code class="docutils literal notranslate"><span class="pre">dict</span></code> as JSON, you can use <code class="docutils literal notranslate"><span class="pre">json.dumps()</span></code> (which returns a <code class="docutils literal notranslate"><span class="pre">str</span></code>). On the receiving end, you can then use <code class="docutils literal notranslate"><span class="pre">json.loads()</span></code> to decode the JSON string back into a <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
 </div>
 </section>
