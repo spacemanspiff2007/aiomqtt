@@ -204,24 +204,29 @@
         <article role="main">
           <section id="reconnection">
 <h1>Reconnection<a class="headerlink" href="#reconnection" title="Permalink to this heading">#</a></h1>
-<p>Network connections are inherently unstable and can fail at any time. Especially for long-running applications, this can be a problem.</p>
-<p>The first challenge in making an application resilient to connection failures is to detect them in the first place. The second challenge is to recover from them.</p>
-<p>A simple way to detect connection failures and recover from them is to wrap your code in a <code class="docutils literal notranslate"><span class="pre">try</span></code>/<code class="docutils literal notranslate"><span class="pre">except</span></code>-block and listen for <code class="docutils literal notranslate"><span class="pre">MqttError</span></code>s:</p>
+<p>Network connections are inherently unstable and can fail at any time. Especially for long-running applications, this can be a challenge.</p>
+<p>To make an application resilient against connection failures, we have to be able to:</p>
+<ol class="arabic simple">
+<li><p>detect failures in the first place, and</p></li>
+<li><p>recover from them.</p></li>
+</ol>
+<p>The <code class="docutils literal notranslate"><span class="pre">Client</span></code> context is designed to be <a class="reference external" href="https://docs.python.org/3/library/contextlib.html#reusable-context-managers">reusable (but not reentrant)</a>. This means that we can wrap our code in a <code class="docutils literal notranslate"><span class="pre">try</span></code>/<code class="docutils literal notranslate"><span class="pre">except</span></code>-block, listen for <code class="docutils literal notranslate"><span class="pre">MqttError</span></code>s, and reconnect like so:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span>
     <span class="n">interval</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Seconds</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">async</span> <span class="k">with</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="p">:</span>
                 <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
                     <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
                     <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">MqttError</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Connection lost; Reconnecting in </span><span class="si">{</span><span class="n">interval</span><span class="si">}</span><span class="s1"> seconds ...&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection lost; Reconnecting in </span><span class="si">{</span><span class="n">interval</span><span class="si">}</span><span class="s2"> seconds ...&quot;</span><span class="p">)</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
 
 
