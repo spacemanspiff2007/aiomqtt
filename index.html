@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Connecting to the broker" href="connecting-to-the-broker.html" />
 
-    <!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
-        <title>asyncio-mqtt</title>
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
+        <title>aiomqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">asyncio-mqtt</div></a>
+      <a href="#"><div class="brand">aiomqtt</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">asyncio-mqtt</span>
+  <span class="sidebar-brand-text">aiomqtt</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -164,10 +164,10 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project links</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt">GitHub</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/issues">Issue tracker</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/discussions">Discussions</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/asyncio-mqtt/">PyPI</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/aiomqtt">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/issues">Issue tracker</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/discussions">Discussions</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/aiomqtt/">PyPI</a></li>
 </ul>
 
 </div>
@@ -218,7 +218,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>asyncio-mqtt combines the stability of the time-proven <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a> library with a modern, asyncio-based interface.</p>
+<p>aiomqtt combines the stability of the time-proven <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a> library with a modern, asyncio-based interface.</p>
 <ul class="simple">
 <li><p>No more callbacks! 👍</p></li>
 <li><p>No more return codes (welcome to the <code class="docutils literal notranslate"><span class="pre">MqttError</span></code>)</p></li>
@@ -227,15 +227,15 @@
 <li><p>Fully type-hinted</p></li>
 <li><p>Did we mention no more callbacks?</p></li>
 </ul>
-<p>The whole thing is less than <a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/blob/main/asyncio_mqtt/client.py">900 lines of code</a>.</p>
+<p>The whole thing is less than <a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/blob/main/aiomqtt/client.py">900 lines of code</a>.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
-<p>asyncio-mqtt can be installed via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">asyncio-mqtt</span></code>. It requires Python <code class="docutils literal notranslate"><span class="pre">3.7+</span></code> to run. The only dependency is <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a>.</p>
+<p>aiomqtt can be installed via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">aiomqtt</span></code>. It requires Python <code class="docutils literal notranslate"><span class="pre">3.7+</span></code> to run. The only dependency is <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a>.</p>
 <p>If you can’t wait for the latest version and want to install directly from GitHub, use:</p>
-<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">git+https://github.com/sbtinstruments/asyncio-mqtt</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">git+https://github.com/sbtinstruments/aiomqtt</span></code></p>
 <section id="note-for-windows-users">
 <h3>Note for Windows users<a class="headerlink" href="#note-for-windows-users" title="Permalink to this heading">#</a></h3>
-<p>Since Python 3.8, the default asyncio event loop is the <code class="docutils literal notranslate"><span class="pre">ProactorEventLoop</span></code>. Said loop <a class="reference external" href="https://docs.python.org/3/library/asyncio-platforms.html#windows">doesn’t support the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method</a> that is required by asyncio-mqtt. Please switch to an event loop that supports the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method such as the built-in <code class="docutils literal notranslate"><span class="pre">SelectorEventLoop</span></code>:</p>
+<p>Since Python 3.8, the default asyncio event loop is the <code class="docutils literal notranslate"><span class="pre">ProactorEventLoop</span></code>. Said loop <a class="reference external" href="https://docs.python.org/3/library/asyncio-platforms.html#windows">doesn’t support the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method</a> that is required by aiomqtt. Please switch to an event loop that supports the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method such as the built-in <code class="docutils literal notranslate"><span class="pre">SelectorEventLoop</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change to the &quot;Selector&quot; event loop if platform is Windows</span>
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
     <span class="c1"># only import if platform/os is win32/nt, otherwise &quot;WindowsSelectorEventLoopPolicy&quot; is not present</span>
@@ -264,7 +264,7 @@
 <section id="contributing">
 <h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">#</a></h2>
 <p>We’re happy about your contributions to the project!</p>
-<p>You can get started by reading the <a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+<p>You can get started by reading the <a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
 </section>
 <section id="versioning">
 <h2>Versioning<a class="headerlink" href="#versioning" title="Permalink to this heading">#</a></h2>
@@ -273,18 +273,18 @@
 </section>
 <section id="changelog">
 <h2>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">#</a></h2>
-<p>The changelog lives in the <a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/blob/main/CHANGELOG.md">CHANGELOG.md</a> document. It adheres to the principles of <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
+<p>The changelog lives in the <a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/blob/main/CHANGELOG.md">CHANGELOG.md</a> document. It adheres to the principles of <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
 </section>
 <section id="related-projects">
 <h2>Related projects<a class="headerlink" href="#related-projects" title="Permalink to this heading">#</a></h2>
-<p>Is asyncio-mqtt not what you’re looking for? There are a few other clients you can try:</p>
+<p>Is aiomqtt not what you’re looking for? There are a few other clients you can try:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a> — Own protocol implementation. Synchronous.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/eclipse/paho.mqtt.python" /> <img alt="license" src="https://img.shields.io/github/license/eclipse/paho.mqtt.python" /></p></li>
 <li><p><a class="reference external" href="https://github.com/wialon/gmqtt">gmqtt</a> — Own protocol implementation. Asynchronous.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/wialon/gmqtt" /> <img alt="license" src="https://img.shields.io/github/license/wialon/gmqtt" /></p></li>
 <li><p><a class="reference external" href="https://github.com/sabuhish/fastapi-mqtt">fastapi-mqtt</a> — Asynchronous wrapper around gmqtt. Simplifies integration in your FastAPI application.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/sabuhish/fastapi-mqtt" /> <img alt="license" src="https://img.shields.io/github/license/sabuhish/fastapi-mqtt" /></p></li>
 <li><p><a class="reference external" href="https://github.com/Yakifo/amqtt">amqtt</a> — Own protocol implementation. Asynchronous. Includes a broker.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/Yakifo/amqtt" /> <img alt="license" src="https://img.shields.io/github/license/Yakifo/amqtt" /></p></li>
 <li><p><a class="reference external" href="https://github.com/eerimoq/mqttools">mqttools</a> — Own protocol implementation. Asynchronous.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/eerimoq/mqttools" /> <img alt="license" src="https://img.shields.io/github/license/eerimoq/mqttools" /></p></li>
-<li><p><a class="reference external" href="https://github.com/bkanuka/trio-paho-mqtt">trio-paho-mqtt</a> — Asynchronous wrapper around paho-mqtt (similar to asyncio-mqtt). Based on trio instead of asyncio.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/bkanuka/trio-paho-mqtt" /> <img alt="license" src="https://img.shields.io/github/license/bkanuka/trio-paho-mqtt" /></p></li>
+<li><p><a class="reference external" href="https://github.com/bkanuka/trio-paho-mqtt">trio-paho-mqtt</a> — Asynchronous wrapper around paho-mqtt (similar to aiomqtt). Based on trio instead of asyncio.<br><img alt="GitHub stars" src="https://img.shields.io/github/stars/bkanuka/trio-paho-mqtt" /> <img alt="license" src="https://img.shields.io/github/license/bkanuka/trio-paho-mqtt" /></p></li>
 </ul>
 <div class="toctree-wrapper compound">
 </div>
@@ -321,7 +321,7 @@
           </div>
           <div class="right-details">
             <div class="icons">
-              <a class="muted-link " href="https://github.com/sbtinstruments/asyncio-mqtt" aria-label="GitHub">
+              <a class="muted-link " href="https://github.com/sbtinstruments/aiomqtt" aria-label="GitHub">
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
                 </svg>
@@ -369,6 +369,9 @@
     </aside>
   </div>
 </div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>

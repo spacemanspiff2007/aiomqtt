@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Reconnection" href="reconnection.html" /><link rel="prev" title="Publishing a message" href="publishing-a-message.html" />
 
-    <!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
-        <title>Subscribing to a topic - asyncio-mqtt</title>
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
+        <title>Subscribing to a topic - aiomqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">asyncio-mqtt</div></a>
+      <a href="index.html"><div class="brand">aiomqtt</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">asyncio-mqtt</span>
+  <span class="sidebar-brand-text">aiomqtt</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -164,10 +164,10 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project links</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt">GitHub</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/issues">Issue tracker</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/asyncio-mqtt/discussions">Discussions</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/asyncio-mqtt/">PyPI</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/aiomqtt">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/issues">Issue tracker</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/discussions">Discussions</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/aiomqtt/">PyPI</a></li>
 </ul>
 
 </div>
@@ -204,9 +204,9 @@
         <article role="main">
           <section id="subscribing-to-a-topic">
 <h1>Subscribing to a topic<a class="headerlink" href="#subscribing-to-a-topic" title="Permalink to this heading">#</a></h1>
-<p>To receive messages for a topic, we need to subscribe to it and listen for messages. A minimal working example looks like this:</p>
+<p>To receive messages for a topic, we need to subscribe to it and listen for messages. A minimal working example that listens for messages to the <code class="docutils literal notranslate"><span class="pre">temperature/#</span></code> wildcard looks like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -220,13 +220,13 @@
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>Now you can use the <a class="reference internal" href="publishing-a-message.html"><span class="std std-doc">minimal publisher example</span></a> to publish a test message to <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code> and see it appear in the console.</p>
+<p>Now you can use the <a class="reference internal" href="publishing-a-message.html"><span class="std std-doc">minimal publisher example</span></a> to publish a message to <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code> and see it appear in the console.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Messages are handled <em>one after another</em>. If a message takes a long time to handle, other messages are queued and handled only after the first one is done.</p>
+<p>Messages are handled <em>one after another</em>. If a message takes a long time to handle, other <a class="reference internal" href="#the-message-queue">messages are queued</a> and handled only after the first one is done.</p>
 <p>You can handle messages in parallel by using an <code class="docutils literal notranslate"><span class="pre">asyncio.TaskGroup</span></code> like so:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
@@ -255,9 +255,9 @@
 <section id="filtering-messages">
 <h2>Filtering messages<a class="headerlink" href="#filtering-messages" title="Permalink to this heading">#</a></h2>
 <p>Imagine we measure temperature and humidity on the outside and inside, and our topics look like this: <code class="docutils literal notranslate"><span class="pre">temperature/outside</span></code>. We want to receive all types of measurements but handle them differently.</p>
-<p>asyncio-mqtt provides <code class="docutils literal notranslate"><span class="pre">Topic.matches()</span></code> to make this easy:</p>
+<p>aiomqtt provides <code class="docutils literal notranslate"><span class="pre">Topic.matches()</span></code> to make this easy:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -288,7 +288,7 @@
 <p>If you want to queue based on priority, you can subclass <code class="docutils literal notranslate"><span class="pre">asyncio.PriorityQueue</span></code>. This queue returns messages in priority order (lowest priority first). In case of ties, messages with lower message identifiers are returned first.</p>
 <p>Let’s say we measure temperature and humidity again, but we want to prioritize humidity messages:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">class</span> <span class="nc">CustomPriorityQueue</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">PriorityQueue</span><span class="p">):</span>
@@ -319,13 +319,13 @@
 <p>By default, the size of the queue is unlimited. You can limit it by passing the <code class="docutils literal notranslate"><span class="pre">queue_maxsize</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">messages()</span></code>.</p>
 </div>
 </section>
-<section id="unblocking-the-listener">
-<h2>Unblocking the listener<a class="headerlink" href="#unblocking-the-listener" title="Permalink to this heading">#</a></h2>
+<section id="listening-without-blocking">
+<h2>Listening without blocking<a class="headerlink" href="#listening-without-blocking" title="Permalink to this heading">#</a></h2>
 <p>When you run the minimal example for subscribing and listening for messages, you’ll notice that the program doesn’t finish. Waiting for messages through the <code class="docutils literal notranslate"><span class="pre">messages()</span></code> generator blocks the execution of everything that comes afterward.</p>
 <p>In case you want to run other code after starting your listener, this is not practical.</p>
 <p>You can use <code class="docutils literal notranslate"><span class="pre">asyncio.TaskGroup</span></code> (or <code class="docutils literal notranslate"><span class="pre">asyncio.gather</span></code> for Python <code class="docutils literal notranslate"><span class="pre">&lt;3.11</span></code>) to safely run other tasks alongside the MQTT listener:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">sleep</span><span class="p">(</span><span class="n">seconds</span><span class="p">):</span>
@@ -352,14 +352,14 @@
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>In case task groups are not an option (e.g. because you run asyncio-mqtt <a class="reference internal" href="side-by-side-with-web-frameworks.html"><span class="std std-doc">side by side with a web framework</span></a>) you can start the listener in a fire-and-forget way. The idea is to use asyncio’s <code class="docutils literal notranslate"><span class="pre">create_task</span></code> but not <code class="docutils literal notranslate"><span class="pre">await</span></code> the created task:</p>
+<p>In case task groups are not an option (e.g. because you run aiomqtt <a class="reference internal" href="side-by-side-with-web-frameworks.html"><span class="std std-doc">side by side with a web framework</span></a>) you can start the listener in a fire-and-forget way. The idea is to use asyncio’s <code class="docutils literal notranslate"><span class="pre">create_task</span></code> but not <code class="docutils literal notranslate"><span class="pre">await</span></code> the created task:</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
 <p>You need to be a bit careful with this approach. Exceptions raised in asyncio tasks are propagated only when we <code class="docutils literal notranslate"><span class="pre">await</span></code> the task. In this case, we explicitly don’t.</p>
 <p>This means that you need to handle all possible exceptions <em>inside</em> the fire-and-forget task. Any unhandled exceptions will be silently ignored until the program exits.</p>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">listen</span><span class="p">():</span>
@@ -398,7 +398,7 @@
 <h2>Stop listening<a class="headerlink" href="#stop-listening" title="Permalink to this heading">#</a></h2>
 <p>You might want to have a listener task running alongside other code, and then stop it when you’re done. You can use <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task.cancel"><code class="docutils literal notranslate"><span class="pre">Task.cancel()</span></code></a> for this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">listen</span><span class="p">():</span>
@@ -432,7 +432,7 @@
 <h2>Stop listening after timeout<a class="headerlink" href="#stop-listening-after-timeout" title="Permalink to this heading">#</a></h2>
 <p>For use cases where you only want to listen to messages for a certain amount of time, Python <code class="docutils literal notranslate"><span class="pre">3.11</span></code> introduced a neat feature called <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#timeouts">timeouts</a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">asyncio_mqtt</span> <span class="k">as</span> <span class="nn">aiomqtt</span>
+<span class="kn">import</span> <span class="nn">aiomqtt</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">listen</span><span class="p">():</span>
@@ -497,7 +497,7 @@
           </div>
           <div class="right-details">
             <div class="icons">
-              <a class="muted-link " href="https://github.com/sbtinstruments/asyncio-mqtt" aria-label="GitHub">
+              <a class="muted-link " href="https://github.com/sbtinstruments/aiomqtt" aria-label="GitHub">
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
                 </svg>
@@ -524,7 +524,7 @@
 <li><a class="reference internal" href="#">Subscribing to a topic</a><ul>
 <li><a class="reference internal" href="#filtering-messages">Filtering messages</a></li>
 <li><a class="reference internal" href="#the-message-queue">The message queue</a></li>
-<li><a class="reference internal" href="#unblocking-the-listener">Unblocking the listener</a></li>
+<li><a class="reference internal" href="#listening-without-blocking">Listening without blocking</a></li>
 <li><a class="reference internal" href="#stop-listening">Stop listening</a></li>
 <li><a class="reference internal" href="#stop-listening-after-timeout">Stop listening after timeout</a></li>
 </ul>
@@ -539,6 +539,9 @@
     </aside>
   </div>
 </div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
