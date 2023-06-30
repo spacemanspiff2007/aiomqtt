@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Side by side with web frameworks" href="side-by-side-with-web-frameworks.html" /><link rel="prev" title="Subscribing to a topic" href="subscribing-to-a-topic.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Connecting to the broker" href="connecting-to-the-broker.html" /><link rel="prev" title="The idiomatic asyncio MQTT client" href="index.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
-        <title>Reconnection - aiomqtt</title>
+        <title>Introduction - aiomqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -155,15 +155,15 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+  <ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Introduction</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="connecting-to-the-broker.html">Connecting to the broker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="publishing-a-message.html">Publishing a message</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subscribing-to-a-topic.html">Subscribing to a topic</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Reconnection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reconnection.html">Reconnection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="side-by-side-with-web-frameworks.html">Side by side with web frameworks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project links</span></p>
@@ -206,37 +206,12 @@
           </label>
         </div>
         <article role="main">
-          <section id="reconnection">
-<h1>Reconnection<a class="headerlink" href="#reconnection" title="Permalink to this heading">#</a></h1>
-<p>Network connections are inherently unstable and can fail at any time. Especially for long-running applications, this can be a challenge.</p>
-<p>To make an application resilient against connection failures, we have to be able to:</p>
-<ol class="arabic simple">
-<li><p>detect failures in the first place, and</p></li>
-<li><p>recover from them.</p></li>
-</ol>
-<p>The <code class="docutils literal notranslate"><span class="pre">Client</span></code> context is designed to be <a class="reference external" href="https://docs.python.org/3/library/contextlib.html#reusable-context-managers">reusable (but not reentrant)</a>. This means that we can wrap our code in a <code class="docutils literal notranslate"><span class="pre">try</span></code>/<code class="docutils literal notranslate"><span class="pre">except</span></code>-block, listen for <code class="docutils literal notranslate"><span class="pre">MqttError</span></code>s, and reconnect like so:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">aiomqtt</span>
-
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">client</span> <span class="o">=</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span>
-    <span class="n">interval</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Seconds</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="p">:</span>
-                <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
-                    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
-                    <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">aiomqtt</span><span class="o">.</span><span class="n">MqttError</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection lost; Reconnecting in </span><span class="si">{</span><span class="n">interval</span><span class="si">}</span><span class="s2"> seconds ...&quot;</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
-
-
-<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
-</pre></div>
-</div>
+          <section id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">#</a></h1>
+<p>This documentation aims to cover everything you need to know to use aiomqtt in your projects. We expect some knowledge of MQTT and asyncio, but we’ll try to explain things as clearly as possible.</p>
+<p>If you’re new to MQTT, we recommend reading the <a class="reference external" href="https://www.hivemq.com/mqtt-essentials/">HiveMQ MQTT essentials</a> guide. For asyncio, we recommend the <a class="reference external" href="https://realpython.com/async-io-python/">RealPython asyncio walkthrough</a> as an introduction and the <a class="reference external" href="https://docs.python.org/3/library/asyncio.html">official asyncio docs</a> as a reference.</p>
+<p>Especially first-time readers have a very valuable view of the documentation. You can spot ambiguities and unclear explanations that simply stay hidden from us maintainers! So if you find an error somewhere or you feel there’s anything that can improve these docs, please don’t hesitate to open an issue or a pull request on GitHub.</p>
+<p>Let’s dive in! 🤿</p>
 </section>
 
         </article>
@@ -244,23 +219,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="side-by-side-with-web-frameworks.html">
+          <a class="next-page" href="connecting-to-the-broker.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Side by side with web frameworks</div>
+                <div class="title">Connecting to the broker</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="subscribing-to-a-topic.html">
+          <a class="prev-page" href="index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Subscribing to a topic</div>
+                <div class="title">Home</div>
                 
               </div>
             </a>

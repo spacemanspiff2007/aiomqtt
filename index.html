@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Connecting to the broker" href="connecting-to-the-broker.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Introduction" href="introduction.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
         <title>aiomqtt</title>
@@ -156,6 +156,10 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="connecting-to-the-broker.html">Connecting to the broker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="publishing-a-message.html">Publishing a message</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subscribing-to-a-topic.html">Subscribing to a topic</a></li>
@@ -218,16 +222,15 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>aiomqtt combines the stability of the time-proven <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a> library with a modern, asyncio-based interface.</p>
+<p>aiomqtt combines the stability of the time-proven <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a> library with an intuitive, idiomatic asyncio interface:</p>
 <ul class="simple">
 <li><p>No more callbacks! 👍</p></li>
 <li><p>No more return codes (welcome to the <code class="docutils literal notranslate"><span class="pre">MqttError</span></code>)</p></li>
 <li><p>Graceful disconnection (forget about <code class="docutils literal notranslate"><span class="pre">on_unsubscribe</span></code>, <code class="docutils literal notranslate"><span class="pre">on_disconnect</span></code>, etc.)</p></li>
-<li><p>Compatible with <code class="docutils literal notranslate"><span class="pre">async</span></code> code</p></li>
+<li><p>Supports MQTT versions 5.0, 3.1.1 and 3.1</p></li>
 <li><p>Fully type-hinted</p></li>
 <li><p>Did we mention no more callbacks?</p></li>
 </ul>
-<p>The whole thing is less than <a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/blob/main/aiomqtt/client.py">900 lines of code</a>.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
 <p>aiomqtt can be installed via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">aiomqtt</span></code>. It requires Python <code class="docutils literal notranslate"><span class="pre">3.7+</span></code> to run. The only dependency is <a class="reference external" href="https://github.com/eclipse/paho.mqtt.python">paho-mqtt</a>.</p>
@@ -238,16 +241,10 @@
 <p>Since Python 3.8, the default asyncio event loop is the <code class="docutils literal notranslate"><span class="pre">ProactorEventLoop</span></code>. Said loop <a class="reference external" href="https://docs.python.org/3/library/asyncio-platforms.html#windows">doesn’t support the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method</a> that is required by aiomqtt. Please switch to an event loop that supports the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method such as the built-in <code class="docutils literal notranslate"><span class="pre">SelectorEventLoop</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change to the &quot;Selector&quot; event loop if platform is Windows</span>
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
-    <span class="c1"># only import if platform/os is win32/nt, otherwise &quot;WindowsSelectorEventLoopPolicy&quot; is not present</span>
-    <span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="p">(</span>
-        <span class="n">set_event_loop_policy</span><span class="p">,</span>
-        <span class="n">WindowsSelectorEventLoopPolicy</span>
-    <span class="p">)</span>
-    <span class="c1"># set the event loop</span>
+    <span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">set_event_loop_policy</span><span class="p">,</span> <span class="n">WindowsSelectorEventLoopPolicy</span>
     <span class="n">set_event_loop_policy</span><span class="p">(</span><span class="n">WindowsSelectorEventLoopPolicy</span><span class="p">())</span>
 <span class="c1"># Run your async application as usual</span>
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
-
 </pre></div>
 </div>
 </section>
@@ -263,16 +260,15 @@
 </section>
 <section id="contributing">
 <h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">#</a></h2>
-<p>We’re happy about your contributions to the project!</p>
-<p>You can get started by reading the <a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+<p>We’re very happy about contributions to the project! You can get started by reading the <a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> guide.</p>
 </section>
 <section id="versioning">
 <h2>Versioning<a class="headerlink" href="#versioning" title="Permalink to this heading">#</a></h2>
-<p>This project adheres to <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>. Breaking changes will only occur in major releases (<code class="docutils literal notranslate"><span class="pre">2.0.0</span></code>, <code class="docutils literal notranslate"><span class="pre">3.0.0</span></code>, etc.).</p>
+<p>This project adheres to <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>. Breaking changes will only occur in major <code class="docutils literal notranslate"><span class="pre">X.0.0</span></code> releases.</p>
 </section>
 <section id="changelog">
 <h2>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">#</a></h2>
-<p>The changelog lives in the <a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/blob/main/CHANGELOG.md">CHANGELOG.md</a> document. It adheres to the principles of <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
+<p>The changelog lives in <a class="reference external" href="https://github.com/sbtinstruments/aiomqtt/blob/main/CHANGELOG.md">CHANGELOG.md</a>. It follows the principles of <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
 </section>
 <section id="related-projects">
 <h2>Related projects<a class="headerlink" href="#related-projects" title="Permalink to this heading">#</a></h2>
@@ -289,6 +285,8 @@
 </div>
 <div class="toctree-wrapper compound">
 </div>
+<div class="toctree-wrapper compound">
+</div>
 </section>
 </section>
 
@@ -297,12 +295,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="connecting-to-the-broker.html">
+          <a class="next-page" href="introduction.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Connecting to the broker</div>
+                <div class="title">Introduction</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
