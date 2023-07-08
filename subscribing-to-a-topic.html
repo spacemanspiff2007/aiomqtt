@@ -164,7 +164,11 @@
 <li class="toctree-l1"><a class="reference internal" href="publishing-a-message.html">Publishing a message</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Subscribing to a topic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reconnection.html">Reconnection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="side-by-side-with-web-frameworks.html">Side by side with web frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alongside-fastapi-and-co.html">Alongside FastAPI &amp; Co.</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="developer-interface.html">Developer interface</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project links</span></p>
 <ul>
@@ -356,7 +360,7 @@
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>In case task groups are not an option (e.g. because you run aiomqtt <a class="reference internal" href="side-by-side-with-web-frameworks.html"><span class="std std-doc">side by side with a web framework</span></a>) you can start the listener in a fire-and-forget way. The idea is to use asyncio’s <code class="docutils literal notranslate"><span class="pre">create_task</span></code> but not <code class="docutils literal notranslate"><span class="pre">await</span></code> the created task:</p>
+<p>In case task groups are not an option (e.g. because you run aiomqtt <a class="reference internal" href="alongside-fastapi-and-co.html"><span class="std std-doc">alongside a web framework</span></a>) you can start the listener in a fire-and-forget way. The idea is to use asyncio’s <code class="docutils literal notranslate"><span class="pre">create_task</span></code> but not <code class="docutils literal notranslate"><span class="pre">await</span></code> the created task:</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
 <p>You need to be a bit careful with this approach. Exceptions raised in asyncio tasks are propagated only when we <code class="docutils literal notranslate"><span class="pre">await</span></code> the task. In this case, we explicitly don’t.</p>

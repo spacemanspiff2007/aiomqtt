@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Reconnection" href="reconnection.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Developer interface" href="developer-interface.html" /><link rel="prev" title="Reconnection" href="reconnection.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
-        <title>Side by side with web frameworks - aiomqtt</title>
+        <title>Alongside FastAPI &amp; Co. - aiomqtt</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -164,7 +164,11 @@
 <li class="toctree-l1"><a class="reference internal" href="publishing-a-message.html">Publishing a message</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subscribing-to-a-topic.html">Subscribing to a topic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reconnection.html">Reconnection</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Side by side with web frameworks</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Alongside FastAPI &amp; Co.</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="developer-interface.html">Developer interface</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project links</span></p>
 <ul>
@@ -206,8 +210,8 @@
           </label>
         </div>
         <article role="main">
-          <section id="side-by-side-with-web-frameworks">
-<h1>Side by side with web frameworks<a class="headerlink" href="#side-by-side-with-web-frameworks" title="Permalink to this heading">#</a></h1>
+          <section id="alongside-fastapi-co">
+<h1>Alongside FastAPI &amp; Co.<a class="headerlink" href="#alongside-fastapi-co" title="Permalink to this heading">#</a></h1>
 <p>MQTT is often used in the context of web servers.</p>
 <p>Many web frameworks take control over the main function, which can make it tricky to figure out where to create the <code class="docutils literal notranslate"><span class="pre">Client</span></code> and how to share this connection.</p>
 <p>With <a class="reference external" href="https://github.com/tiangolo/fastapi">FastAPI</a> (<code class="docutils literal notranslate"><span class="pre">0.93+</span></code>) and <a class="reference external" href="https://github.com/encode/starlette">Starlette</a> you can use lifespan context managers to safely set up a global client instance. Here’s a minimal working example of FastAPI side by side with an aiomqtt listener task and message publication on <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/</span></code>:</p>
@@ -265,7 +269,15 @@
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="developer-interface.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Developer interface</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
           <a class="prev-page" href="reconnection.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
