@@ -213,12 +213,12 @@
           <section id="the-idiomatic-asyncio-mqtt-client">
 <h1>The idiomatic asyncio MQTT client<a class="headerlink" href="#the-idiomatic-asyncio-mqtt-client" title="Permalink to this heading">#</a></h1>
 <p>Write code like this:</p>
-<p><strong>Publisher</strong></p>
+<p><strong>Publish</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;humidity/outside&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="mf">0.38</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Subscriber</strong></p>
+<p><strong>Subscribe</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="s2">&quot;test.mosquitto.org&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="p">()</span> <span class="k">as</span> <span class="n">messages</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;humidity/#&quot;</span><span class="p">)</span>
@@ -242,7 +242,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">git+https://github.com/sbtinstruments/aiomqtt</span></code></p>
 <section id="note-for-windows-users">
 <h3>Note for Windows users<a class="headerlink" href="#note-for-windows-users" title="Permalink to this heading">#</a></h3>
-<p>Since Python 3.8, the default asyncio event loop is the <code class="docutils literal notranslate"><span class="pre">ProactorEventLoop</span></code>. Said loop <a class="reference external" href="https://docs.python.org/3/library/asyncio-platforms.html#windows">doesn’t support the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method</a> that is required by aiomqtt. Please switch to an event loop that supports the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method such as the built-in <code class="docutils literal notranslate"><span class="pre">SelectorEventLoop</span></code>:</p>
+<p>Since Python <code class="docutils literal notranslate"><span class="pre">3.8</span></code>, the default asyncio event loop is the <code class="docutils literal notranslate"><span class="pre">ProactorEventLoop</span></code>. Said loop <a class="reference external" href="https://docs.python.org/3/library/asyncio-platforms.html#windows">doesn’t support the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method</a> that is required by aiomqtt. Please switch to an event loop that supports the <code class="docutils literal notranslate"><span class="pre">add_reader</span></code> method such as the built-in <code class="docutils literal notranslate"><span class="pre">SelectorEventLoop</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change to the &quot;Selector&quot; event loop if platform is Windows</span>
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">set_event_loop_policy</span><span class="p">,</span> <span class="n">WindowsSelectorEventLoopPolicy</span>

@@ -212,7 +212,7 @@
         <article role="main">
           <section id="connecting-to-the-broker">
 <h1>Connecting to the broker<a class="headerlink" href="#connecting-to-the-broker" title="Permalink to this heading">#</a></h1>
-<p>To publish messages and subscribe to topics, we need to connect to a broker. A minimal working example that connects to a broker and then publishes a message looks like this:</p>
+<p>To publish messages and subscribe to topics, we first need to connect to a broker. This is a minimal working example that connects to a broker and then publishes a message:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">aiomqtt</span>
 
@@ -225,26 +225,26 @@
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>The connection to the broker is managed by the <code class="docutils literal notranslate"><span class="pre">Client</span></code> context manager.</p>
-<p>This context manager connects to the broker when you enter the <code class="docutils literal notranslate"><span class="pre">with</span></code> statement and disconnects when you exit it again. Similar to e.g. the <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">open(file)</span></code> context manager, this ensures that the teardown logic is always executed at least, and at most, once – even in case of an exception.</p>
+<p>The connection to the broker is managed by the <code class="docutils literal notranslate"><span class="pre">Client</span></code> context manager. This context manager connects to the broker when we enter the <code class="docutils literal notranslate"><span class="pre">with</span></code> statement and disconnects when we exit it again.</p>
+<p>Context managers make it easier to manage resources like network connections or files by ensuring that their teardown logic is always executed – even in case of an exception.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If you’re used to calling something like <code class="docutils literal notranslate"><span class="pre">connect</span></code> and <code class="docutils literal notranslate"><span class="pre">disconnect</span></code> explicitly, working with the client via a context manager might feel a bit strange at first. We will see a few examples which will hopefully clear this up.</p>
-<p>In case your use case does not allow you to use a context manager, you can use the context manager’s <code class="docutils literal notranslate"><span class="pre">__aenter__</span></code> and <code class="docutils literal notranslate"><span class="pre">__aexit__</span></code> methods directly, similar to something like <code class="docutils literal notranslate"><span class="pre">connect</span></code> and <code class="docutils literal notranslate"><span class="pre">disconnect</span></code>. Note that you loose the benefits of context managers in this case. We do not recommend this approach; It’s a workaround and a bit tricky to get right.</p>
+<p>If your use case does not allow you to use a context manager, you can use the client’s <code class="docutils literal notranslate"><span class="pre">__aenter__</span></code> and <code class="docutils literal notranslate"><span class="pre">__aexit__</span></code> methods directly as a workaround, similar to how you would use manual <code class="docutils literal notranslate"><span class="pre">connect</span></code> and <code class="docutils literal notranslate"><span class="pre">disconnect</span></code> methods.</p>
+<p>With this approach you need to make sure that <code class="docutils literal notranslate"><span class="pre">___aexit___</span></code> is also called in case of an exception. Avoid this workaround if you can, it’s a bit tricky to get right.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Examples use the public <a class="reference external" href="https://test.mosquitto.org/">mosquitto test broker</a>. You can connect to this broker without any credentials. Please use this broker in issues or discussions (if possible) to make it easier for others to test your code.</p>
+<p>Examples use the public <a class="reference external" href="https://test.mosquitto.org/">mosquitto test broker</a>. You can connect to this broker without any credentials. All examples in this documentation are self-contained and runnable as-is.</p>
 </div>
 <p>For a list of all available arguments to the client, see the <a class="reference internal" href="developer-interface.html"><span class="doc std std-doc">API reference</span></a>.</p>
 <section id="sharing-the-connection">
 <h2>Sharing the connection<a class="headerlink" href="#sharing-the-connection" title="Permalink to this heading">#</a></h2>
-<p>In many cases, you’ll want to send and receive messages in different locations in your code. You could create a new client each time, but:</p>
+<p>We often want to send and receive messages in multiple different locations in our code. We could create a new client each time, but:</p>
 <ol class="arabic simple">
 <li><p>This is not very performant, and</p></li>
-<li><p>You’ll use more network bandwidth.</p></li>
+<li><p>We’ll use more network bandwidth.</p></li>
 </ol>
-<p>You can share the connection by passing the <code class="docutils literal notranslate"><span class="pre">Client</span></code> instance to all functions that need it:</p>
+<p>You can share the connection to the broker by passing the <code class="docutils literal notranslate"><span class="pre">Client</span></code> instance to all functions that need it:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">aiomqtt</span>
 
@@ -269,7 +269,7 @@
 </section>
 <section id="persistent-sessions">
 <h2>Persistent sessions<a class="headerlink" href="#persistent-sessions" title="Permalink to this heading">#</a></h2>
-<p>Connections to the MQTT broker can be persistent or non-persistent. Persistent sessions are kept alive when the client is offline. This means that the broker stores the client’s subscriptions and queues any messages of <a class="reference internal" href="publishing-a-message.html#quality-of-service-qos"><span class="std std-ref">QoS 1 and 2</span></a> that the client misses or has not yet acknowledged. The broker will then retransmit the messages when the client reconnects.</p>
+<p>Connections to the MQTT broker can be persistent or non-persistent. Persistent sessions are kept alive when the client goes offline. This means that the broker stores the client’s subscriptions and queues any messages of <a class="reference internal" href="publishing-a-message.html#quality-of-service-qos"><span class="std std-ref">QoS 1 and 2</span></a> that the client misses or has not yet acknowledged. The broker will then retransmit the messages when the client reconnects.</p>
 <p>To create a persistent session, set the <code class="docutils literal notranslate"><span class="pre">clean_session</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">False</span></code> when initializing the client. For a non-persistent session, set <code class="docutils literal notranslate"><span class="pre">clean_session</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

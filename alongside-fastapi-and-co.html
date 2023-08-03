@@ -212,9 +212,8 @@
         <article role="main">
           <section id="alongside-fastapi-co">
 <h1>Alongside FastAPI &amp; Co.<a class="headerlink" href="#alongside-fastapi-co" title="Permalink to this heading">#</a></h1>
-<p>MQTT is often used in the context of web servers.</p>
 <p>Many web frameworks take control over the main function, which can make it tricky to figure out where to create the <code class="docutils literal notranslate"><span class="pre">Client</span></code> and how to share this connection.</p>
-<p>With <a class="reference external" href="https://github.com/tiangolo/fastapi">FastAPI</a> (<code class="docutils literal notranslate"><span class="pre">0.93+</span></code>) and <a class="reference external" href="https://github.com/encode/starlette">Starlette</a> you can use lifespan context managers to safely set up a global client instance. Here’s a minimal working example of FastAPI side by side with an aiomqtt listener task and message publication on <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/</span></code>:</p>
+<p>With <a class="reference external" href="https://github.com/tiangolo/fastapi">FastAPI</a> (<code class="docutils literal notranslate"><span class="pre">0.93+</span></code>) and <a class="reference external" href="https://github.com/encode/starlette">Starlette</a> you can use lifespan context managers to safely set up a global client instance. This is a minimal working example of FastAPI side by side with an aiomqtt listener task and message publication on <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">aiomqtt</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
