@@ -1103,7 +1103,12 @@ class Client:
         tb: TracebackType | None,
     ) -> None:
         """Disconnect from the broker."""
-        if self._early_out_on_disconnected():
+        if self._disconnected.done():
+            # Return early if the client is already disconnected
+            self._lock.release()
+            if (exc := self._disconnected.exception()) is not None:
+                # If the disconnect wasn't intentional, raise the error that caused it
+                raise exc
             return
         # Try to gracefully disconnect from the broker
         rc = self._client.disconnect()
